@@ -15,7 +15,9 @@ function init(){
 		boids.push(new Boid());
 	};
 	players = [];
-	players.push(new Player(39,37));
+	players.push(new Player(1,39,37));
+	players.push(new Player(0,68,65));
+	players.push(new Player(2,44,43));
 	act();
 	ctx.fillStyle = "black"
 	ctx.fillRect(0,0,canvas.width,canvas.height)
@@ -27,7 +29,7 @@ function init(){
 }
 
 function act(){
-	ctx.fillStyle = "rgba(256,256,256,.1)"
+	ctx.fillStyle = "rgba(256,256,256,.15)"
 	ctx.fillRect(0,0,canvas.width,canvas.height)
 	ctx.fillStyle = "black"
 
@@ -44,11 +46,15 @@ function act(){
 			boids[i].rotate_towards(average_direction(near))
 			if (distance(new Boid(average_location_flock[0],average_location_flock[1]),boids[i])>30)
 				boids[i].rotate_towards(direction_to(boids[i], average_location_flock));
+			boids[i].increment_color(near);
 
 		}
 		
-		if(too_near.length!=1) 
+		if(too_near.length!=1) {
 			boids[i].rotate_away(average_direction(too_near))
+
+		}
+		boids[i].decrement_color();
 		//boids[i].average_color(near)
 		boids[i].move();
 		
@@ -64,25 +70,28 @@ function act(){
 		else if(boids[i].y>canvas.height)
 			boids[i].y = 0;
 		
-
+		boids[i].angle-=Math.random()*.1 - .05;
 		boids[i].draw();	
 	};
-	players[0].control();
-	players[0].move();
+	for (var i = players.length - 1; i >= 0; i--) {
 
-	if (players[0].x<0)
-			players[0].x = canvas.width;
+	players[i].control();
+	players[i].move();
 
-	else if(boids[0].x>canvas.width)
-		players[0].x = 0;
+	if (players[i].x<0)
+			players[i].x = canvas.width;
 
-	if (players[0].y<0)
-		players[0].y = canvas.height;
+	else if(boids[i].x>canvas.width)
+		players[i].x = 0;
 
-	else if(players[0].y>canvas.height)
-		players[0].y = 0;
+	if (players[i].y<0)
+		players[i].y = canvas.height;
+
+	else if(players[i].y>canvas.height)
+		players[i].y = 0;
 		
-	players[0].draw();
+	players[i].draw();
+}	
 
 	requestAnimFrame(act);
 }
@@ -131,9 +140,11 @@ function Boid(x,y){
 	this.x = x||Math.random() * canvas.width;
 	this.y = y||Math.random() * canvas.height;
 	this.angle =  Math.random()*2*Math.PI;
-	this.speed = 1;
+	this.speed = 1.4;
 	this.rotation_speed = .025;
-	this.color = [0,0,0] 
+	this.color = -1;
+	this.color_value = 200;
+	this.size = 3;
 }
 
 Boid.prototype.rotate_towards = function(direction){
@@ -152,7 +163,7 @@ Boid.prototype.rotate_towards = function(direction){
 	}
 	else if (difference > 0){
 		this.angle+=this.rotation_speed*.9;
-	}
+	} 
 
 }
 
@@ -179,16 +190,59 @@ Boid.prototype.move = function() {
 
 
 Boid.prototype.draw = function() {
-	ctx.fillStyle = "rgb("+this.color[0]+"," + this.color[1] + "," + this.color[2]+ ")";
-	ctx.fillRect(this.x,this.y,2,2)
+	var color = [0,0,0];
+	if (this.color!=-1)		//if not black
+		color[this.color] = this.color_value; //make color
+	ctx.fillStyle = "rgb("+Math.floor(color[0])+"," + Math.floor(color[1]) + "," + Math.floor(color[2])+ ")";
+	ctx.fillRect(this.x,this.y,this.size,this.size)
 };
+
+Boid.prototype.decrement_color = function(value){
+	this.color_value-=value||.3;
+	if (this.color_value<0){
+		this.color_value = 0;
+		this.color = -1;
+	}
+
+}
+
+Boid.prototype.increment_color = function(boids){
+	var max = 0, //color value of most colorful boid
+		color = 0;	//color of most colorful boid
+	for (var i = boids.length - 1; i >= 0; i--) {		//find which boid to get color from
+		if(boids[i].color_value>max){
+			max = boids[i].color_value
+			color = boids[i].color
+		}
+	};
+	
+	
+	if (this.color == -1) {
+		this.color = color;
+		this.color_value+=max/256
+	}
+
+	else if (this.color == color){
+		this.color_value+=max/256
+	}
+	else
+		this.decrement_color(max/100)
+
+	if (this.color_value>255)
+		this.color_value = 255;
+}
 
 Player.prototype = new Boid(100,100);
 
 
-function Player(r,l){
+function Player(color,r,l){
+	this.x = Math.random() * canvas.width;
+	this.y = Math.random() * canvas.height;
 	this.keys = new Keys(r,l);
-	this.color = [256,0,0]
+	this.color = color;
+	this.color_value = 256
+	this.speed = 1.6;
+	this.size = 5;
 }
 
 
@@ -218,7 +272,6 @@ function onKeydown(e){
 }
 
 function onKeyup(e) {
-	console.log(boids.length)
 	var k  = e.keyCode;
 	for (var i = players.length - 1; i >= 0; i--) {
 		switch (k) {
