@@ -4,21 +4,28 @@ var canvas,
 	boids,
 	players;
 
-function init(){
+window.onload = function(){
 	canvas = document.getElementById("canvas");
 	
 	if(canvas.getContext)
 		ctx = canvas.getContext("2d");
 
+
 	boids = [];
-	for (var i = 50; i >= 0; i--) {
+	players = [];
+
+	for (var i = 150; i >= 0; i--) {
 		boids.push(new Boid());
 	};
-	players = [];
+
 	players.push(new Player(1,39,37));
 	players.push(new Player(0,68,65));
-	players.push(new Player(2,44,43));
+	players.push(new Player(0,39,37));
+	players.push(new Player(2,68,65));
+
+
 	act();
+
 	ctx.fillStyle = "black"
 	ctx.fillRect(0,0,canvas.width,canvas.height)
 	ctx.fillStyle = "black"
@@ -143,7 +150,7 @@ function Boid(x,y){
 	this.speed = 1.4;
 	this.rotation_speed = .025;
 	this.color = -1;
-	this.color_value = 200;
+	this.color_value = 0;
 	this.size = 3;
 }
 
@@ -219,14 +226,14 @@ Boid.prototype.increment_color = function(boids){
 	
 	if (this.color == -1) {
 		this.color = color;
-		this.color_value+=max/256
+		this.color_value+=max/200
 	}
 
 	else if (this.color == color){
-		this.color_value+=max/256
+		this.color_value+=max/200
 	}
 	else
-		this.decrement_color(max/100)
+		this.decrement_color(max/75)
 
 	if (this.color_value>255)
 		this.color_value = 255;
