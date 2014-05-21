@@ -12,8 +12,6 @@ window.onload = function(){
 	canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-	ctx.fillStyle = "black"
-	//ctx.fillRect(0,0,canvas.width,canvas.height)
 
 	game = new Game()
 	gameUI();
@@ -26,9 +24,18 @@ window.onload = function(){
 
 }
 function gameUI(){
-	for (var i = game.buttons.length - 1; i >= 0; i--) {
-		game.buttons[i].draw();
-	};
+	if(!game.intilized){
+		ctx.fillStyle = "rgb(240,240,240)"
+		ctx.fillRect(0,0,canvas.width,canvas.height);
+
+		for (var i = game.buttons.length - 1; i >= 0; i--) {
+			game.buttons[i].draw();
+		};
+
+		ctx.lineWidth = 1.3
+		ctx.font = "bold 63px Verdana"
+		ctx.strokeText("Influenza",(canvas.width-ctx.measureText("Influenza").width)/2+25,canvas.height*.45)
+	}
 }
 
 
@@ -53,10 +60,10 @@ function onMousemove(e){
 
 	for (var i = game.buttons.length - 1; i >= 0; i--) {
 		if (game.buttons[i].isClicked(pos.x,pos.y)) {
-			game.buttons[i].hover = true;
+			game.buttons[i].fillStyle = "rgb(80,80,80)";
 		}
 		else
-			game.buttons[i].hover = false;
+			game.buttons[i].fillStyle = "rgb(50,50,50)";
 	};
 
 	gameUI();
@@ -65,7 +72,7 @@ function onMousemove(e){
 function onMousedown(e){
 	var pos = getMousePos(canvas, e);
 
-	for (var i = game.buttons.length - 1; i >= 0; i--) {
+	for (var i = 0; i < game.buttons.length; i++) {
 		if (game.buttons[i].isClicked(pos.x,pos.y)) {
 			game.buttons[i].callback();
 			game.buttons = [];
@@ -82,13 +89,15 @@ function getMousePos(canvas, evt) {
     };
   }
 
-function Button(x,y,width,height,callback){
+function Button(x,y,width,height,text,callback,strokeStyle,fillStyle){
 	this.x = x-height/2;
 	this.y = y-width/2;
 	this.width = width;
 	this.height = height;
-	this.hover = false;
 	this.callback = callback
+	this.text = text;
+	this.strokeStyle = strokeStyle || "rgb(130,130,130)"
+	this.fillStyle = fillStyle || "rgb(50,50,50)"
 }
 
 Button.prototype.isClicked = function(x,y){
@@ -98,28 +107,29 @@ Button.prototype.isClicked = function(x,y){
 }
 
 Button.prototype.draw = function(){
-	ctx.clearRect(this.x,this.y,this.width,this.height);
+	ctx.fillStyle = this.fillStyle;
+	ctx.strokeStyle = this.strokeStyle;
+	ctx.lineWidth = 3
 
-	ctx.fillStyle = "black"
-	ctx.strokeStyle = "black"
-
-	if (this.hover){
-		ctx.fillStyle = "blue"
-		ctx.strokeStyle = "blue"
-	}
 
 	roundRect(ctx,this.x,this.y,this.width,this.height,10)
 	ctx.fill();
+	ctx.stroke();
+
+	ctx.lineWidth = 1.3
+	ctx.font = "bold 19px Verdana"
+	ctx.strokeText(this.text,this.x+this.width*.041,this.y+this.height/2+7.5)
 
 }
 
 function Game(){
-	this.keys = [new Keys(74,71),new Keys(39,37),new Keys(68,65)];
+	this.intilized = false;
+	this.keys = [new Keys(39,37),new Keys(68,65),new Keys(74,71)];
 	this.players = [];
 	this.boids = [];
-	this.buttons = [new Button(canvas.width/2-120,canvas.height/2+50,100,50,(this.init.bind(this,1,30))),
-					new Button(canvas.width/2,canvas.height/2+50,100,50,(this.init.bind(this,2,40))),
-					new Button(canvas.width/2+120,canvas.height/2+50,100,50,(this.init.bind(this,3,50)))];
+	this.buttons = [new Button(canvas.width/2-120,canvas.height/2+50,100,50,"1-Player",(this.init.bind(this,1,30))),
+					new Button(canvas.width/2,canvas.height/2+50,100,50,"2-Player",(this.init.bind(this,2,40))),
+					new Button(canvas.width/2+120,canvas.height/2+50,100,50,"3-Player",(this.init.bind(this,3,50)))];
 
 	
 }
@@ -132,6 +142,8 @@ Game.prototype.init = function(number_of_players, number_of_boids){
 	for (var i = number_of_boids; i > 0; i--) {
 		this.boids.push(new Boid());
 	};
+
+	this.intilized = true;
 
 	game_loop();
 
@@ -326,6 +338,7 @@ function Player(color,keys){
 	this.y = Math.random() * canvas.height;
 	this.keys = keys;
 	this.color = color;
+	this.angle =  Math.random()*2*Math.PI;
 	this.color_value = 256
 	this.speed = 1.6;
 	this.size = 4;
