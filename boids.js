@@ -1,8 +1,7 @@
 
 var canvas,
 	ctx,
-	boids,
-	players;
+	game;
 
 window.onload = function(){
 	canvas = document.getElementById("canvas");
@@ -13,42 +12,131 @@ window.onload = function(){
 	canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-	boids = [];
-	players = [];
-
-	for (var i = 30; i >= 0; i--) {
-		boids.push(new Boid());
-	};
-
-	players.push(new Player(2,74,71));
-	players.push(new Player(1,39,37));
-	players.push(new Player(0,68,65));
-
-	act();
-
 	ctx.fillStyle = "black"
-	ctx.fillRect(0,0,canvas.width,canvas.height)
+	//ctx.fillRect(0,0,canvas.width,canvas.height)
+
+	game = new Game()
+	gameUI();
+
+	window.addEventListener("mousedown", onMousedown, false);
+	window.addEventListener("mousemove", onMousemove, false);
 
 	window.addEventListener("keydown", onKeydown, false);
 	window.addEventListener("keyup", onKeyup, false);
 
 }
+function gameUI(){
+	for (var i = game.buttons.length - 1; i >= 0; i--) {
+		game.buttons[i].draw();
+	};
+}
 
-function act(){
-	ctx.fillStyle = "rgba(256,256,256,.1)"
+
+game_loop = function(){
+	ctx.fillStyle = "rgba(256,256,256,.2)"
 	ctx.fillRect(0,0,canvas.width,canvas.height)
 	ctx.fillStyle = "black"
 
-	for (var i = boids.length-1; i >= 0; i--) {
-		boids[i].act((boids.slice(0,i)).concat(players,boids.slice(i+1)))
+	for (var i = game.boids.length-1; i >= 0; i--) {
+		game.boids[i].act((game.boids.slice(0,i)).concat(game.players,game.boids.slice(i+1)))
 	};
 
-	for (var i = players.length - 1; i >= 0; i--) {
-		players[i].act();
+	for (var i = game.players.length - 1; i >= 0; i--) {
+		game.players[i].act();
 	}	
 
-	requestAnimFrame(act);
+	requestAnimFrame(game_loop);
 }
+
+function onMousemove(e){
+	var pos = getMousePos(canvas, e);
+
+	for (var i = game.buttons.length - 1; i >= 0; i--) {
+		if (game.buttons[i].isClicked(pos.x,pos.y)) {
+			game.buttons[i].hover = true;
+		}
+		else
+			game.buttons[i].hover = false;
+	};
+
+	gameUI();
+}
+
+function onMousedown(e){
+	var pos = getMousePos(canvas, e);
+
+	for (var i = game.buttons.length - 1; i >= 0; i--) {
+		if (game.buttons[i].isClicked(pos.x,pos.y)) {
+			game.buttons[i].callback();
+			game.buttons = [];
+		};
+	};
+}
+
+
+function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+  }
+
+function Button(x,y,width,height,callback){
+	this.x = x-height/2;
+	this.y = y-width/2;
+	this.width = width;
+	this.height = height;
+	this.hover = false;
+	this.callback = callback
+}
+
+Button.prototype.isClicked = function(x,y){
+	if (this.x<x&&this.y<y&&this.x+this.width>x&&this.y+this.height>y) {
+		return true;
+	};
+}
+
+Button.prototype.draw = function(){
+	ctx.clearRect(this.x,this.y,this.width,this.height);
+
+	ctx.fillStyle = "black"
+	ctx.strokeStyle = "black"
+
+	if (this.hover){
+		ctx.fillStyle = "blue"
+		ctx.strokeStyle = "blue"
+	}
+
+	roundRect(ctx,this.x,this.y,this.width,this.height,10)
+	ctx.fill();
+
+}
+
+function Game(){
+	this.keys = [new Keys(74,71),new Keys(39,37),new Keys(68,65)];
+	this.players = [];
+	this.boids = [];
+	this.buttons = [new Button(canvas.width/2-120,canvas.height/2+50,100,50,(this.init.bind(this,1,30))),
+					new Button(canvas.width/2,canvas.height/2+50,100,50,(this.init.bind(this,2,40))),
+					new Button(canvas.width/2+120,canvas.height/2+50,100,50,(this.init.bind(this,3,50)))];
+
+	
+}
+
+Game.prototype.init = function(number_of_players, number_of_boids){
+	for (var i = number_of_players-1; i >= 0; i--) {
+		this.players.push(new Player(i,this.keys[i]))
+	};
+
+	for (var i = number_of_boids; i > 0; i--) {
+		this.boids.push(new Boid());
+	};
+
+	game_loop();
+
+}
+
 
 function direction_to(boid, target){
 	return Math.atan2(target[1]-boid.y,target[0]-boid.x);
@@ -189,16 +277,16 @@ Boid.prototype.increment_color = function(boids){
 		this.color_value+=max/200
 	}
 	else
-		this.decrement_color(max/75)
+		this.decrement_color(max/25)
 
 	if (this.color_value>255)
 		this.color_value = 255;
 }
 
 Boid.prototype.increment_score = function(){
-	for (var i = players.length - 1; i >= 0; i--) {
-		if(players[i].color==this.color)
-			players[i].score+=this.color_value/10000;
+	for (var i = game.players.length - 1; i >= 0; i--) {
+		if(game.players[i].color==this.color)
+			game.players[i].score+=this.color_value/15000;
 	};
 }
 
@@ -233,10 +321,10 @@ Boid.prototype.act = function(boids){
 Player.prototype = new Boid(100,100);
 
 
-function Player(color,r,l){
+function Player(color,keys){
 	this.x = Math.random() * canvas.width;
 	this.y = Math.random() * canvas.height;
-	this.keys = new Keys(r,l);
+	this.keys = keys;
 	this.color = color;
 	this.color_value = 256
 	this.speed = 1.6;
@@ -274,15 +362,15 @@ Player.prototype.act = function(){
 }
 function onKeydown(e){
 	var k = e.keyCode;
-	for (var i = players.length - 1; i >= 0; i--) {
+	for (var i = game.players.length - 1; i >= 0; i--) {
 		switch (k) {
 		
-			case (players[i].keys.left[0]): // Left
-					players[i].keys.left[1]=true;
+			case (game.players[i].keys.left[0]): // Left
+					game.players[i].keys.left[1]=true;
 				break;
 			
-			case (players[i].keys.right[0]): // Right
-					players[i].keys.right[1]=true;
+			case (game.players[i].keys.right[0]): // Right
+					game.players[i].keys.right[1]=true;
 				break;
 		};
 	};	
@@ -290,15 +378,15 @@ function onKeydown(e){
 
 function onKeyup(e) {
 	var k  = e.keyCode;
-	for (var i = players.length - 1; i >= 0; i--) {
+	for (var i = game.players.length - 1; i >= 0; i--) {
 		switch (k) {
 
-			case players[i].keys.left[0]: // Left
-				players[i].keys.left[1]= false;
+			case game.players[i].keys.left[0]: // Left
+				game.players[i].keys.left[1]= false;
 				break;
 
-			case players[i].keys.right[0]: // Right
-				players[i].keys.right[1]= false;
+			case game.players[i].keys.right[0]: // Right
+				game.players[i].keys.right[1]= false;
 				break;
 		};
 	}
@@ -311,7 +399,17 @@ function Keys(r,l){
 	this.left = [l,false];
 }
 
-
+function roundRect (ctx, x, y, w, h, r) {
+  if (w < 2 * r) r = w / 2;
+  if (h < 2 * r) r = h / 2;
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y,   x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x,   y+h, r);
+  ctx.arcTo(x,   y+h, x,   y,   r);
+  ctx.arcTo(x,   y,   x+w, y,   r);
+  ctx.closePath();
+}
 window.requestAnimFrame = (function(){
   return  window.requestAnimationFrame       || 
           window.webkitRequestAnimationFrame || 
