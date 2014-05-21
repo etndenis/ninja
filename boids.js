@@ -44,13 +44,13 @@ game_loop = function(){
 	ctx.fillRect(0,0,canvas.width,canvas.height)
 	ctx.fillStyle = "black"
 
-	for (var i = game.boids.length-1; i >= 0; i--) {
-		game.boids[i].act((game.boids.slice(0,i)).concat(game.players,game.boids.slice(i+1)))
+	var actors = game.boids.concat(game.players);
+
+	for (var i = actors.length-1; i >= 0; i--) {
+		actors[i].act((actors.slice(0,i)).concat(actors.slice(i+1)))
 	};
 
-	for (var i = game.players.length - 1; i >= 0; i--) {
-		game.players[i].act();
-	}	
+
 
 	requestAnimFrame(game_loop);
 }
@@ -127,16 +127,20 @@ function Game(){
 	this.keys = [new Keys(39,37),new Keys(68,65),new Keys(74,71)];
 	this.players = [];
 	this.boids = [];
-	this.buttons = [new Button(canvas.width/2-120,canvas.height/2+50,100,50,"1-Player",(this.init.bind(this,1,30))),
-					new Button(canvas.width/2,canvas.height/2+50,100,50,"2-Player",(this.init.bind(this,2,40))),
-					new Button(canvas.width/2+120,canvas.height/2+50,100,50,"3-Player",(this.init.bind(this,3,50)))];
+	this.buttons = [new Button(canvas.width/2-120,canvas.height/2+50,100,50,"1-Player",(this.init.bind(this,1,30,2))),
+					new Button(canvas.width/2,canvas.height/2+50,100,50,"2-Player",(this.init.bind(this,2,40,0))),
+					new Button(canvas.width/2+120,canvas.height/2+50,100,50,"3-Player",(this.init.bind(this,3,50,0)))];
 
 	
 }
 
-Game.prototype.init = function(number_of_players, number_of_boids){
+Game.prototype.init = function(number_of_players, number_of_boids,cpu){
 	for (var i = number_of_players-1; i >= 0; i--) {
 		this.players.push(new Player(i,this.keys[i]))
+	};
+	for (var i = cpu-1; i >= 0; i--) {
+		this.players.push(new AIBoid(i+number_of_players,new Keys(-1,-1)))
+
 	};
 
 	for (var i = number_of_boids; i > 0; i--) {
@@ -330,7 +334,42 @@ Boid.prototype.act = function(boids){
 		this.draw();	
 }
 
-Player.prototype = new Boid(100,100);
+AIBoid.prototype = new Boid(100,100);
+
+
+function AIBoid(color,keys){
+	this.x = Math.random() * canvas.width;
+	this.y = Math.random() * canvas.height;
+	this.color = color;
+	this.keys = keys;
+	this.angle =  Math.random()*2*Math.PI;
+	this.color_value = 1256
+	this.speed = 1.6;
+	this.size = 4;
+	this.score = 0;
+	//this.draw_score = 
+}
+
+AIBoid.prototype.act = function(boids){
+	var near = near_boids(50, this, boids),
+			too_near = near_boids(30,  this, near),
+			average_location_flock = average_location(near);
+
+	if (near.length>0){
+		this.rotate_towards(average_direction(near))
+		this.rotate_towards(direction_to(this, average_location_flock),.1);
+	}
+	
+	if(too_near.length>0) {
+		this.rotate_away(average_direction(too_near))
+	}
+
+	this.move();
+	this.draw();
+	Player.prototype.draw_score.call(this);
+}
+
+Player.prototype = new Boid(100,100)
 
 
 function Player(color,keys){
@@ -350,14 +389,6 @@ function Player(color,keys){
 Player.prototype.control = function(){
 	if (this.keys.right[1])
 		this.angle+=this.rotation_speed*2;
-	if (this.keys.left[1])
-		this.angle-=this.rotation_speed*2;
-}
-
-Player.prototype.control = function(){
-	if (this.keys.right[1]){
-		this.angle+=this.rotation_speed*2;
-	}
 	if (this.keys.left[1])
 		this.angle-=this.rotation_speed*2;
 }
