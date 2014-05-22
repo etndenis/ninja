@@ -7,7 +7,7 @@ function Player(color,keys){
 	this.keys = keys;
 	this.color = color;
 	this.angle =  Math.random()*2*Math.PI;
-	this.color_value = 256
+	this.color_value = 400
 	this.speed = 1.45;
 	this.size = 4;
 	this.score = 0;
@@ -24,7 +24,7 @@ Player.prototype.control = function(){
 
 Player.prototype.draw_score = function(){
 	ctx.fillStyle = this.rgba_color(.1);
-	ctx.fillRect(0,0,this.score,15);
+	ctx.fillRect(0,0,this.score*canvas.width/GAME.MAX_SCORE,15);
 }
 
 Player.prototype.act = function(){

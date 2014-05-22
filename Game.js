@@ -61,6 +61,7 @@ GAME_loop = function(){
 
 
 function Game(){
+	this.MAX_SCORE = 1000;
 	this.initilized = false;
 	this.keys = [new Keys(39,37),new Keys(68,65),new Keys(74,71)];
 	this.players = [];

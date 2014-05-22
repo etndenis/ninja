@@ -108,7 +108,7 @@ Boid.prototype.increment_score = function(){
 	for (var i = 0; i < GAME.players.length; i++) {
 		if(GAME.players[i].color==this.color){
 			GAME.players[i].score+=this.color_value/15000;
-			if (GAME.players[i].score>=1000) {
+			if (GAME.players[i].score>=GAME.MAX_SCORE) {
 				GAME.players[i].win();
 			};
 		}
@@ -129,7 +129,7 @@ Boid.prototype.act = function(boids){
 
 		if (near.length>0){
 			this.rotate_towards(average_direction(near))
-			this.rotate_towards(direction_to(this, average_location_flock),.1);
+			this.rotate_towards(direction_to(this, average_location_flock),.2);
 			this.increment_color(near);
 		}
 		
