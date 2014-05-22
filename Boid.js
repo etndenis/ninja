@@ -108,7 +108,7 @@ Boid.prototype.increment_score = function(){
 	for (var i = 0; i < GAME.players.length; i++) {
 		if(GAME.players[i].color==this.color){
 			GAME.players[i].score+=this.color_value/15000;
-			if (GAME.players[i].score>=100) {
+			if (GAME.players[i].score>=1000) {
 				GAME.players[i].win();
 			};
 		}

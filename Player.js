@@ -8,7 +8,7 @@ function Player(color,keys){
 	this.color = color;
 	this.angle =  Math.random()*2*Math.PI;
 	this.color_value = 256
-	this.speed = 1.6;
+	this.speed = 1.45;
 	this.size = 4;
 	this.score = 0;
 }

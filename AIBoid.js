@@ -8,8 +8,8 @@ function AIBoid(color,keys){
 	this.color = color;
 	this.keys = keys;
 	this.angle =  Math.random()*2*Math.PI;
-	this.color_value = 1560
-	this.speed = 1.6;
+	this.color_value = 2560
+	this.speed = 1.45;
 	this.size = 4;
 	this.score = 0;
 	this.win = Player.prototype.win;

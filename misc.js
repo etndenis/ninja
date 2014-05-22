@@ -22,7 +22,7 @@ function getMousePos(canvas, evt) {
 
 function onMousemove(e){
 	var pos = getMousePos(canvas, e);
-	console.log(GAME.boids.length)
+	//console.log(GAME.boids.length)
 	if (!GAME.initilized) {
 		for (var i = GAME.buttons.length - 1; i >= 0; i--) {
 			if (GAME.buttons[i].isClicked(pos.x,pos.y)) {

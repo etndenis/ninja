@@ -65,8 +65,8 @@ function Game(){
 	this.keys = [new Keys(39,37),new Keys(68,65),new Keys(74,71)];
 	this.players = [];
 	this.boids = [];
-	this.buttons = [new Button(canvas.width/2-120,canvas.height/2+50,100,50,"1-Player",(this.init.bind(this,1,30,2))),
-					new Button(canvas.width/2,canvas.height/2+50,100,50,"2-Player",(this.init.bind(this,2,40,1))),
+	this.buttons = [new Button(canvas.width/2-120,canvas.height/2+50,100,50,"1-Player",(this.init.bind(this,1,50,2))),
+					new Button(canvas.width/2,canvas.height/2+50,100,50,"2-Player",(this.init.bind(this,2,50,1))),
 					new Button(canvas.width/2+120,canvas.height/2+50,100,50,"3-Player",(this.init.bind(this,3,50,0)))];
 
 	
