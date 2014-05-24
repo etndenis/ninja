@@ -34,8 +34,6 @@ Box.prototype.draw = function(){
 	ctx.lineWidth = this.lineWidth
 	ctx.font = this.font;
 	ctx.strokeText(this.text,this.x+(this.width-ctx.measureText(this.text).width)/2,this.y+.5*this.height+.3*this.fontSize)
-	ctx.fillStyle = "red"
-	//ctx.fillRect(this.x,this.y+.5*this.height,this.width-2,4)
 }
 
 

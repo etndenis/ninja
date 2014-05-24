@@ -24,12 +24,17 @@ window.onload = function(){
 }
 
 GAME_loop = function(){
-	GAME.ui.drawUI(GAME.state);
 	
 	if (GAME.initilized) {
 		ctx.fillStyle = "rgba(256,256,256,.2)"
 		ctx.fillRect(0,0,canvas.width,canvas.height)
 		ctx.fillStyle = "black"
+
+		GAME.players.sort(function(a, b){
+		return a.score-b.score;
+		})
+
+		draw_score();
 
 		var actors = GAME.boids.concat(GAME.players);
 
@@ -37,6 +42,9 @@ GAME_loop = function(){
 			actors[i].act((actors.slice(0,i)).concat(actors.slice(i+1)))
 		};
 	}	
+
+		GAME.ui.drawUI(GAME.state);
+
 			requestAnimFrame(GAME_loop);
 
 }
@@ -50,16 +58,18 @@ function Game(){
 	this.keys = [new Keys(39,37),new Keys(68,65),new Keys(74,71)];
 	this.players = [];
 	this.boids = [];
-	this.ui = new UI([new Button(canvas.width/2-120,canvas.height/2,100,50,"1-Player","menu",(this.init.bind(this,1,50,5))),
-					new Button(canvas.width/2,canvas.height/2,100,50,"2-Player","menu",(this.init.bind(this,2,50,4))),
-					new Button(canvas.width/2+120,canvas.height/2,100,50,"3-Player","menu",(this.init.bind(this,3,50,3)))],
+	this.ui = new UI([new Button(canvas.width/2-120,canvas.height/2,100,50,"1-Player","menu",(this.init.bind(this,1,50,4))),
+					new Button(canvas.width/2,canvas.height/2,100,50,"2-Player","menu",(this.init.bind(this,2,50,3))),
+					new Button(canvas.width/2+120,canvas.height/2,100,50,"3-Player","menu",(this.init.bind(this,3,50,2))),
+					new Button(canvas.width/2,canvas.height/2+10,170,50,"Back to Menu","win",(function(){this.state = "menu"; this.players = [];this.boids = [];}.bind(this)))],
 					[new Box(canvas.width/2,canvas.height/2-60,0,0,"rgb(50,50,50)","rgb(50,50,50)","sharpCorners","menu","Influenza",1.3,"bold 63px Verdana"),
-					new Box(canvas.width/2,canvas.height/2,canvas.width,canvas.height,"rgb(240,240,240)","rgb(240,240,240)","sharpCorners","menu")]);		// Box(x,y,width,height,fillStyle,strokeStyle,boxStyle,text,state)
+					new Box(canvas.width/2,canvas.height/2,canvas.width,canvas.height,"rgb(240,240,240)","rgb(240,240,240)","sharpCorners","menu"),
+					new Box(canvas.width/2,canvas.height/2-60,0,0,"rgb(50,50,50)","rgb(50,50,50)","sharpCorners","win","win",1.3,"bold 63px Verdana")]);		// Box(x,y,width,height,fillStyle,strokeStyle,boxStyle,text,state)
 	}
 
 Game.prototype.init = function(number_of_players, number_of_boids,cpu){
 	this.state = "game";
-	var colors = [[0,0,1],[0,1,0],[1,0,0],[1,0,1],[1,1,0],[0,1,1]];
+	var colors = [[0,0,1],[0,1,0],[1,0,0],[1,0,1],[0,1,1]];
 	for (var i = number_of_players-1; i >= 0; i--) {
 		this.players.push(new Player(colors[i],this.keys[i]))
 	};
@@ -95,8 +105,6 @@ UI.prototype.drawUI = function(state){
 }
 
 /*TODOS
-win menu,
-score,
 boid trails,
 pause menu,
 ranking results,

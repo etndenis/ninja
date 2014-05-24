@@ -30,5 +30,4 @@ AIBoid.prototype.act = function(boids){
 
 	this.move();
 	this.draw();
-	Player.prototype.draw_score.call(this);
 }

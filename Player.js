@@ -23,7 +23,8 @@ Player.prototype.control = function(){
 }
 
 Player.prototype.draw_score = function(){
-	ctx.fillStyle = this.rgba_color(.1);
+	
+	ctx.fillStyle = this.rgba_color();
 	ctx.fillRect(0,0,this.score*canvas.width/GAME.MAX_SCORE,15);
 }
 
@@ -31,9 +32,11 @@ Player.prototype.act = function(){
 	this.control();
 	this.move();
 	this.draw();
-	this.draw_score();
 }		
 
 Player.prototype.win = function(){
-	GAME.initilized = "win";
+	GAME.state = "win";
+	GAME.ui.boxes[2].strokeStyle = this.rgba_color();
+	GAME.ui.boxes[2].text = colorName(this.color) + " win!"
+	GAME.ui.boxes[2].lineWidth = .8
 }

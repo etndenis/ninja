@@ -112,7 +112,7 @@ Boid.prototype.increment_score = function(){
 	for (var i = 0; i < GAME.players.length; i++) {
 		if(arraysEqual(GAME.players[i].color,this.color)){
 			GAME.players[i].score+=this.color_value/15000;
-			if (GAME.players[i].score>=GAME.MAX_SCORE) {
+			if (GAME.players[i].score>=GAME.MAX_SCORE&&GAME.state == "game") {
 				GAME.players[i].win();
 			};
 		}
@@ -139,7 +139,9 @@ Boid.prototype.act = function(boids){
 		}
 
 		this.decrement_color();
-		this.increment_score();
+		if (GAME.state == "game") {
+			this.increment_score();
+		}
 		this.move();	
 		this.draw();	
 }

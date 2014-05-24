@@ -22,7 +22,6 @@ function getMousePos(canvas, evt) {
 function onMousemove(e){
 	var pos = getMousePos(canvas, e);
 	//console.log(GAME.boids.length)
-	if (!GAME.initilized) {
 		for (var i = GAME.ui.buttons.length - 1; i >= 0; i--) {
 			if (GAME.ui.buttons[i].isClicked(pos.x,pos.y)) {
 				GAME.ui.buttons[i].fillStyle = "rgb(80,80,80)";
@@ -30,8 +29,13 @@ function onMousemove(e){
 			else
 				GAME.ui.buttons[i].fillStyle = "rgb(50,50,50)";
 		};
-	}
+	
 
+}
+
+function colorName(color){		//converts boid color to color name
+	var colors = [[[["black"],["blue"]],[["green"],["turquoise"]]] , [[["red"],["purple"]],[["yellow"],["white"]]]]
+	return colors[color[0]][color[1]][color[2]];
 }
 
 function direction_to(boid, target){
@@ -109,6 +113,13 @@ function onKeyup(e) {
 
 };
 
+function draw_score(){
+	for (var i = 0; i <GAME.players.length ; i++) {
+			var xStart = ((i-1>-1) ? GAME.players[i-1].score*canvas.width/GAME.MAX_SCORE : 0);
+			ctx.fillStyle = GAME.players[i].rgba_color(.1);
+			ctx.fillRect(xStart,0,GAME.players[i].score*canvas.width/GAME.MAX_SCORE-xStart,15)	
+	}
+}
 
 function Keys(r,l){
 	this.right = [r,false];
@@ -149,6 +160,7 @@ function arraysEqual(arr1, arr2) {
 }
 
 var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
 
 /*
 multi canvas
