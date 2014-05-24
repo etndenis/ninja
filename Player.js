@@ -32,10 +32,8 @@ Player.prototype.act = function(){
 	this.move();
 	this.draw();
 	this.draw_score();
-}
+}		
 
 Player.prototype.win = function(){
-	GAME.players =  [];
-	GAME.boids = [];
-	GAME.initilized = false;
+	GAME.initilized = "win";
 }

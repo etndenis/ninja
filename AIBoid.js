@@ -8,7 +8,7 @@ function AIBoid(color,keys){
 	this.color = color;
 	this.keys = keys;
 	this.angle =  Math.random()*2*Math.PI;
-	this.color_value = 2050
+	this.color_value = 1650
 	this.speed = 1.45;
 	this.size = 4;
 	this.score = 0;
@@ -22,7 +22,6 @@ AIBoid.prototype.act = function(boids){
 
 	if (near.length>0){
 		this.rotate_towards(average_direction(near))
-		this.rotate_towards(direction_to(this, average_location_flock),.1);
 	}
 	
 	if(too_near.length>0) {

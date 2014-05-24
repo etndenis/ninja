@@ -5,7 +5,7 @@ function Boid(x,y){
 	this.angle =  Math.random()*2*Math.PI;
 	this.speed = 1.4;
 	this.rotation_speed = .025;
-	this.color = -1;
+	this.color = [0,0,0];
 	this.color_value = 0;
 	this.size = 2;
 }
@@ -73,15 +73,18 @@ Boid.prototype.decrement_color = function(value){
 	this.color_value-=value||.3;
 	if (this.color_value<0){
 		this.color_value = 0;
-		this.color = -1;
+		this.color = [0,0,0];
 	}
 
 }
 
 Boid.prototype.increment_color = function(boids){
+
 	var max = 0, //color value of most colorful boid
-		color = 0;	//color of most colorful boid
-	for (var i = boids.length - 1; i >= 0; i--) {		//find which boid to get color from
+		color = [0,0,0];
+			//color of most colorful boid
+
+ 	for (var i = boids.length - 1; i >= 0; i--) {		//find which boid to get color from
 		if(boids[i].color_value>max){
 			max = boids[i].color_value
 			color = boids[i].color
@@ -89,12 +92,12 @@ Boid.prototype.increment_color = function(boids){
 	};
 	
 	
-	if (this.color == -1) {
+	if (arraysEqual(this.color, [0,0,0])) {
 		this.color = color;
 		this.color_value+=max/200
 	}
 
-	else if (this.color == color){
+	else if (arraysEqual(this.color, color)){
 		this.color_value+=max/200
 	}
 	else
@@ -102,11 +105,12 @@ Boid.prototype.increment_color = function(boids){
 
 	if (this.color_value>255)
 		this.color_value = 255;
+
 }
 
 Boid.prototype.increment_score = function(){
 	for (var i = 0; i < GAME.players.length; i++) {
-		if(GAME.players[i].color==this.color){
+		if(arraysEqual(GAME.players[i].color,this.color)){
 			GAME.players[i].score+=this.color_value/15000;
 			if (GAME.players[i].score>=GAME.MAX_SCORE) {
 				GAME.players[i].win();
@@ -116,20 +120,17 @@ Boid.prototype.increment_score = function(){
 }
 
 Boid.prototype.rgba_color = function(r){
-	var color = [0,0,0];
-	if (this.color!=-1)		//if not black
-		color[this.color] = this.color_value; //make color
-	return "rgba("+Math.floor(color[0])+"," + Math.floor(color[1]) + "," + Math.floor(color[2])+ "," + (r||1) + ")";
+	return "rgba("+Math.floor(this.color_value*this.color[0])+"," + Math.floor(this.color_value*this.color[1]) + "," + Math.floor(this.color_value*this.color[2])+ "," + (r||1) + ")";
 }
 
 Boid.prototype.act = function(boids){
-		var near = near_boids(50, this, boids),
+		var near = near_boids(60, this, boids),
 			too_near = near_boids(30,  this, near),
 			average_location_flock = average_location(near);
 
 		if (near.length>0){
 			this.rotate_towards(average_direction(near))
-			this.rotate_towards(direction_to(this, average_location_flock),.2);
+			this.rotate_towards(direction_to(this, average_location_flock),.3);
 			this.increment_color(near);
 		}
 		

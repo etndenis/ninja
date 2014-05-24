@@ -1,14 +1,13 @@
 
 function onMousedown(e){
 	var pos = getMousePos(canvas, e);
-	if (!GAME.initilized) {
-		console.log(e)
-		for (var i = 0; i < GAME.buttons.length; i++) {
-			if (GAME.buttons[i].isClicked(pos.x,pos.y)) {
-				GAME.buttons[i].callback();
+		for (var i = 0; i < GAME.ui.buttons.length; i++) {
+
+			if (GAME.ui.buttons[i].isClicked(pos.x,pos.y)&&GAME.state == GAME.ui.buttons[i].state) {
+				GAME.ui.buttons[i].callback();
 			};
 		};
-	}	
+	
 }
 
 
@@ -24,12 +23,12 @@ function onMousemove(e){
 	var pos = getMousePos(canvas, e);
 	//console.log(GAME.boids.length)
 	if (!GAME.initilized) {
-		for (var i = GAME.buttons.length - 1; i >= 0; i--) {
-			if (GAME.buttons[i].isClicked(pos.x,pos.y)) {
-				GAME.buttons[i].fillStyle = "rgb(80,80,80)";
+		for (var i = GAME.ui.buttons.length - 1; i >= 0; i--) {
+			if (GAME.ui.buttons[i].isClicked(pos.x,pos.y)) {
+				GAME.ui.buttons[i].fillStyle = "rgb(80,80,80)";
 			}
 			else
-				GAME.buttons[i].fillStyle = "rgb(50,50,50)";
+				GAME.ui.buttons[i].fillStyle = "rgb(50,50,50)";
 		};
 	}
 
@@ -137,6 +136,17 @@ window.requestAnimFrame = (function(){
             window.setTimeout(callback, 1000 / 60);
           };
 })();
+
+function arraysEqual(arr1, arr2) {
+    if(arr1.length !== arr2.length)
+        return false;
+    for(var i = arr1.length; i--;) {
+        if(arr1[i] !== arr2[i])
+            return false;
+    }
+
+    return true;
+}
 
 var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
