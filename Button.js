@@ -11,7 +11,6 @@ function Box(x,y,width,height,fillStyle,strokeStyle,boxStyle,state,text,lineWidt
 	this.lineWidth = lineWidth||1.3;
 	this.font =font||"bold 19px Verdana";
 	this.fontSize = parseInt(this.font.replace( /(^.+)(\w\d+\w)(.+$)/i,'$2'))
-	console.log(this.fontSize)
 }
 
 

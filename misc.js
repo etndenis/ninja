@@ -1,85 +1,3 @@
-
-function onMousedown(e){
-	var pos = getMousePos(canvas, e);
-		for (var i = 0; i < GAME.ui.buttons.length; i++) {
-
-			if (GAME.ui.buttons[i].isClicked(pos.x,pos.y)&&GAME.state == GAME.ui.buttons[i].state) {
-				GAME.ui.buttons[i].callback();
-			};
-		};
-	
-}
-
-
-function getMousePos(canvas, evt) {
-    var rect = canvas.getBoundingClientRect();
-    return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
-    };
-  }
-
-function onMousemove(e){
-	var pos = getMousePos(canvas, e);
-	//console.log(GAME.boids.length)
-		for (var i = GAME.ui.buttons.length - 1; i >= 0; i--) {
-			if (GAME.ui.buttons[i].isClicked(pos.x,pos.y)) {
-				GAME.ui.buttons[i].fillStyle = "rgb(80,80,80)";
-			}
-			else
-				GAME.ui.buttons[i].fillStyle = "rgb(50,50,50)";
-		};
-	
-
-}
-
-function colorName(color){		//converts boid color to color name
-	var colors = [[[["black"],["blue"]],[["green"],["turquoise"]]] , [[["red"],["purple"]],[["yellow"],["white"]]]]
-	return colors[color[0]][color[1]][color[2]];
-}
-
-function direction_to(boid, target){
-	return Math.atan2(target[1]-boid.y,target[0]-boid.x);
-}
-
-function average_direction(boids){
-	var total = 0;
-	for (var i = boids.length - 1; i >= 0; i--) {
-		total += boids[i].angle;
-	};
-	return total/boids.length;
-}
-
-function near_boids(dis, boid, boids){
-	var near = [];
-	for (var i = boids.length - 1; i >= 0; i--) {
-		if(distance(boid, boids[i])<dis)
-			near.push(boids[i]);
-
-	};
-	return near;
-}
-
-function average_location(boids){
-	var totalX = 0,
-		totalY = 0;
-
-	for (var i = boids.length - 1; i >= 0; i--){
-		totalX += boids[i].x;
-		totalY += boids[i].y;
-	}
-	
-	return [totalX/boids.length, totalY/boids.length];
-}
-
-
-
-function distance(boid1, boid2) {
-	return Math.sqrt(Math.pow(boid1.x-boid2.x,2)+Math.pow(boid1.y-boid2.y,2))
-}
-
-
-
 function onKeydown(e){
 	var k = e.keyCode;
 	for (var i = GAME.players.length - 1; i >= 0; i--) {
@@ -92,6 +10,14 @@ function onKeydown(e){
 			case (GAME.players[i].keys.right[0]): // Right
 					GAME.players[i].keys.right[1]=true;
 				break;
+
+			case GAME.players[i].keys.jump[0]: // Right
+				GAME.players[i].keys.jump[1]= true;
+				break;		
+
+			case GAME.players[i].keys.shoot[0]: // Right
+				GAME.players[i].keys.shoot[1]= true;
+				break;		
 		};
 	};	
 }
@@ -108,35 +34,26 @@ function onKeyup(e) {
 			case GAME.players[i].keys.right[0]: // Right
 				GAME.players[i].keys.right[1]= false;
 				break;
+
+			case GAME.players[i].keys.jump[0]: // Right
+				GAME.players[i].keys.jump[1]= false;
+				break;
+
+			case GAME.players[i].keys.shoot[0]: // Right
+				GAME.players[i].keys.shoot[1]= false;
+				break;
 		};
 	}
 
 };
 
-function draw_score(){
-	for (var i = 0; i <GAME.players.length ; i++) {
-			var xStart = ((i-1>-1) ? GAME.players[i-1].score*canvas.width/GAME.MAX_SCORE : 0);
-			ctx.fillStyle = GAME.players[i].rgba_color(.1);
-			ctx.fillRect(xStart,0,GAME.players[i].score*canvas.width/GAME.MAX_SCORE-xStart,15)	
-	}
-}
-
-function Keys(r,l){
+function Keys(r,l,j,s){
 	this.right = [r,false];
 	this.left = [l,false];
+	this.jump = [j,false];
+	this.shoot = [s, false]
 }
 
-function roundRect (ctx, x, y, w, h, r) {
-  if (w < 2 * r) r = w / 2;
-  if (h < 2 * r) r = h / 2;
-  ctx.beginPath();
-  ctx.moveTo(x+r, y);
-  ctx.arcTo(x+w, y,   x+w, y+h, r);
-  ctx.arcTo(x+w, y+h, x,   y+h, r);
-  ctx.arcTo(x,   y+h, x,   y,   r);
-  ctx.arcTo(x,   y,   x+w, y,   r);
-  ctx.closePath();
-}
 window.requestAnimFrame = (function(){
   return  window.requestAnimationFrame       || 
           window.webkitRequestAnimationFrame || 
@@ -147,19 +64,6 @@ window.requestAnimFrame = (function(){
             window.setTimeout(callback, 1000 / 60);
           };
 })();
-
-function arraysEqual(arr1, arr2) {
-    if(arr1.length !== arr2.length)
-        return false;
-    for(var i = arr1.length; i--;) {
-        if(arr1[i] !== arr2[i])
-            return false;
-    }
-
-    return true;
-}
-
-var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 
 
 /*
