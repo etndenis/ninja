@@ -15,24 +15,24 @@ function Box(x,y,width,height,fillStyle,strokeStyle,boxStyle,state,text,lineWidt
 
 
 Box.prototype.draw = function(){
-	ctx.fillStyle = this.fillStyle;
-	ctx.strokeStyle = this.strokeStyle;
-	ctx.lineWidth = 3
+	GAME.ctx.fillStyle = this.fillStyle;
+	GAME.ctx.strokeStyle = this.strokeStyle;
+	GAME.ctx.lineWidth = 3
 
 	if (this.boxStyle == "roundRect"){
-		roundRect(ctx,this.x,this.y,this.width,this.height,10)
-		ctx.fill();
-		ctx.stroke();
+		roundRect(GAME.ctx,this.x,this.y,this.width,this.height,10)
+		GAME.ctx.fill();
+		GAME.ctx.stroke();
 	}
 	else{
-		ctx.fillRect(this.x,this.y,this.width,this.height);
-		ctx.strokeRect(this.x,this.y,this.width,this.height);
+		GAME.ctx.fillRect(this.x,this.y,this.width,this.height);
+		GAME.ctx.strokeRect(this.x,this.y,this.width,this.height);
 
 	}
 
-	ctx.lineWidth = this.lineWidth
-	ctx.font = this.font;
-	ctx.strokeText(this.text,this.x+(this.width-ctx.measureText(this.text).width)/2,this.y+.5*this.height+.3*this.fontSize)
+	GAME.ctx.lineWidth = this.lineWidth
+	GAME.ctx.font = this.font;
+	GAME.ctx.strokeText(this.text,this.x+(this.width-GAME.ctx.measureText(this.text).width)/2,this.y+.5*this.height+.3*this.fontSize)
 }
 
 
